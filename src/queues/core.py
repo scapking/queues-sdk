@@ -254,3 +254,9 @@ class Queues(Generic[T]):
             logging.getLogger("queues").error("[queues error] [{}]".format(detail))
 
         except BaseException: pass
+
+
+
+
+# asyncio.Queue 风格别名：queues.Queue 即 queues.Queues，同一类同一组配置参数。
+Queue = Queues

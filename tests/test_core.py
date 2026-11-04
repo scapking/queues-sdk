@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from queues import Queues, QueuesError
+from queues import Queues, Queue, QueuesError
 
 
 
@@ -78,3 +78,8 @@ async def test_backpressure_pipeline_fifo():
 async def test_named_error_type():
     error = QueuesError("probe")
     assert str(error) == "probe"
+
+
+def test_queue_alias():
+    # asyncio.Queue 风格别名：同一类，六参数配置面完全一致。
+    assert Queue is Queues

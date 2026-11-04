@@ -22,7 +22,7 @@ Thresholds are constructor arguments, never config files. Import name is
 """
 
 from ._version import __version__
-from .core import Queues
+from .core import Queues, Queue
 from .errors import QueuesError
 
-__all__ = ["Queues", "QueuesError", "__version__"]
+__all__ = ["Queue", "Queues", "QueuesError", "__version__"]

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 — 2026-11-04
+
+- `Queue` alias for `Queues` (asyncio.Queue-style naming): `from queues import Queue` — same class, same six configurable parameters. `Queues` stays valid.
+
 ## 0.2.0 — 2026-11-04
 
 - **BREAKING**: import module renamed `queues_sdk` → `queues` (the PyPI distribution name stays `queues-sdk`). Update your imports: `from queues import Queues`.
