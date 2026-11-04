@@ -1,7 +1,7 @@
 import asyncio
 
-from queues_sdk import Queues
-from queues_sdk.watermarks import default_watermarks
+from queues import Queues
+from queues.watermarks import default_watermarks
 
 
 

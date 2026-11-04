@@ -3,7 +3,7 @@
 ## `Queues`
 
 ```python
-Queues(maxsize=1024*512, memory_max=99, disk_max=99, spill_path="~/.local/queues_sdk/spill/", spill_batch=1024, watermarks=None) -> Queues
+Queues(maxsize=1024*512, memory_max=99, disk_max=99, spill_path="~/.local/queues/spill/", spill_batch=1024, watermarks=None) -> Queues
 ```
 
 ## `async publish(message, name=None) -> None`
@@ -38,4 +38,4 @@ Wipes `pending`, `draining` and `checked` state plus the on-disk directory; the 
 
 ## Error logging
 
-Internal failures go through `__log_error` into the `queues_sdk` standard-library logger at `ERROR` level with a structured dict (id, UTC time, method, type, value, file/line, pid/thread, traceback). Nothing is swallowed silently.
+Internal failures go through `__log_error` into the `queues` standard-library logger at `ERROR` level with a structured dict (id, UTC time, method, type, value, file/line, pid/thread, traceback). Nothing is swallowed silently.

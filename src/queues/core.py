@@ -1,8 +1,8 @@
 import sys, os, time, asyncio, uuid, traceback, threading, collections, json, shutil, datetime, pathlib
 from typing import Callable, Generic, TypeVar
 
-from queues_sdk.watermarks import default_watermarks
-from queues_sdk.errors import QueuesError
+from queues.watermarks import default_watermarks
+from queues.errors import QueuesError
 
 T = TypeVar("T")
 
@@ -21,7 +21,7 @@ class Queues(Generic[T]):
         message = await q.consume(name="audit")   # 自动先回灌盘上溢出
     """
 
-    def __init__(self, maxsize: int = 1024*512, memory_max: int = 99, disk_max: int = 99, spill_path: str = "~/.local/queues_sdk/spill/", spill_batch: int = 1024, watermarks: Callable[[], tuple[int, int]] | None = None):
+    def __init__(self, maxsize: int = 1024*512, memory_max: int = 99, disk_max: int = 99, spill_path: str = "~/.local/queues/spill/", spill_batch: int = 1024, watermarks: Callable[[], tuple[int, int]] | None = None):
         """构造即全部配置，永不读外部状态文件。
 
         Args:
@@ -251,6 +251,6 @@ class Queues(Generic[T]):
                 "error_thread": threading.current_thread().name,
                 "error_traceback": "".join(traceback.format_exception(type(error), error, error.__traceback__)),
             }
-            logging.getLogger("queues_sdk").error("[queues_sdk error] [{}]".format(detail))
+            logging.getLogger("queues").error("[queues error] [{}]".format(detail))
 
         except BaseException: pass

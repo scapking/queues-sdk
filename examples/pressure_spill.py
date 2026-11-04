@@ -1,6 +1,6 @@
 import asyncio
 
-from queues_sdk import Queues
+from queues import Queues
 
 
 async def main():

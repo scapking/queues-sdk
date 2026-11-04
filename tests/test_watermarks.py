@@ -1,14 +1,18 @@
-import queues_sdk
+import queues
 
-from queues_sdk import Queues
-from queues_sdk.watermarks import default_watermarks
+from queues import Queues
+from queues.watermarks import default_watermarks
 
 
 
 
 
 def test_version_exported():
-    assert queues_sdk.__version__ == "0.1.2"
+    # 版本单一来源 = pyproject.toml，发版漏改直接红。
+    import pathlib, re
+    pyproject = pathlib.Path(__file__).resolve().parent.parent / "pyproject.toml"
+    expected = re.search(r'^version = "(.+)"', pyproject.read_text(encoding="utf-8"), re.MULTILINE).group(1)
+    assert queues.__version__ == expected
 
 
 

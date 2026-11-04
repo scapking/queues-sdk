@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "queues-sdk"
-version = "0.1.2"
+version = "0.2.0"
 description = "Zero-loss async queue SDK: direct waiter handoff, backpressure waiting, pressure-gated spill to disk with FIFO drain. No network, no dependencies."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,7 +35,7 @@ Source = "https://github.com/scapking/queues-sdk"
 Issues = "https://github.com/scapking/queues-sdk/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/queues_sdk"]
+packages = ["src/queues"]
 
 [tool.hatch.build.targets.sdist]
 include = ["src", "tests", "docs", "examples", "README.md", "LICENSE"]

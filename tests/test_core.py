@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from queues_sdk import Queues, QueuesError
+from queues import Queues, QueuesError
 
 
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 — 2026-11-04
+
+- **BREAKING**: import module renamed `queues_sdk` → `queues` (the PyPI distribution name stays `queues-sdk`). Update your imports: `from queues import Queues`.
+- Default spill directory renamed `~/.local/queues/spill/` for consistency; move existing `batch-*.jsonl` files by hand if you had any.
+- Internal stdlib logger renamed `queues_sdk` → `queues`.
+
 ## 0.1.2 — 2026-11-04
 
 - Editor support: `Queues` is now `Generic[T]` — `publish(message: T)` / `consume() -> T`; every public method carries full parameter/return annotations and Chinese docstrings with `Args` sections, so signature help and hover docs behave like `asyncio.Queue`.

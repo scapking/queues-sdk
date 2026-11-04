@@ -1,8 +1,8 @@
-"""queues_sdk - zero-loss async queue SDK.
+"""queues - zero-loss async queue SDK.
 
 One class does the work::
 
-    from queues_sdk import Queues
+    from queues import Queues
 
     q = Queues()                       # maxsize=1024*512, thresholds built-in
     await q.publish(message)           # unnamed: memory path, never dropped
@@ -18,7 +18,7 @@ Pressure semantics (memory/disk watermarks, 0-100):
 
 Zero-loss promise: messages are only lost if memory AND disk are exhausted.
 Thresholds are constructor arguments, never config files. Import name is
-``queues_sdk``; the PyPI distribution is ``queues-sdk``.
+``queues``; the PyPI distribution is ``queues-sdk``.
 """
 
 from ._version import __version__

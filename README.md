@@ -2,7 +2,7 @@
 
 **Zero-loss async queue SDK for Python.** Direct waiter handoff, backpressure waiting, pressure-gated spill to disk with FIFO drain. No network, no dependencies, stdlib only.
 
-Import name is `queues_sdk`; the PyPI distribution is `queues-sdk`.
+Import name is `queues`; the PyPI distribution is `queues-sdk`.
 
 ## Why
 
@@ -18,7 +18,7 @@ pip install queues-sdk
 
 ```python
 import asyncio
-from queues_sdk import Queues
+from queues import Queues
 
 q = Queues()                     # maxsize=1024*512, thresholds built-in
 
@@ -44,7 +44,7 @@ asyncio.run(main())
 
 ## API
 
-- `Queues(maxsize=1024*512, memory_max=99, disk_max=99, spill_path="~/.local/queues_sdk/spill/", spill_batch=1024, watermarks=None)`
+- `Queues(maxsize=1024*512, memory_max=99, disk_max=99, spill_path="~/.local/queues/spill/", spill_batch=1024, watermarks=None)`
 - `await publish(message, name=None) -> None` — unnamed skips the pressure gate entirely (hot path)
 - `await consume(name=None) -> Any` — auto-drains the named spill buffer before waiting
 - `await drain(name, target_list, limit=None) -> int` — bounded FIFO refill from disk
