@@ -1,16 +1,37 @@
 import sys, os, time, asyncio, uuid, traceback, threading, collections, json, shutil, datetime, pathlib
-from typing import Callable
+from typing import Callable, Generic, TypeVar
 
 from queues_sdk.watermarks import default_watermarks
 from queues_sdk.errors import QueuesError
 
+T = TypeVar("T")
 
 
 
 
+class Queues(Generic[T]):
+    """零丢失异步有界队列：等待者直递、满载背压、水位压力门控溢出落盘（FIFO 回灌）。
 
-class Queues:
+    用法::
+
+        q = Queues()
+        await q.publish(message)                  # 未命名：内存快路径，永不丢弃
+        await q.publish(message, name="audit")    # 命名：过水位压力门
+        message = await q.consume()               # 背压感知接收
+        message = await q.consume(name="audit")   # 自动先回灌盘上溢出
+    """
+
     def __init__(self, maxsize: int = 1024*512, memory_max: int = 99, disk_max: int = 99, spill_path: str = "~/.local/queues_sdk/spill/", spill_batch: int = 1024, watermarks: Callable[[], tuple[int, int]] | None = None):
+        """构造即全部配置，永不读外部状态文件。
+
+        Args:
+            maxsize: 内存缓冲容量（deque maxlen）。满时 publish 挂起等待消费腾位（背压），不拒绝不丢。
+            memory_max: 内存软线（0-100）。命名消息在水位 ≥ 软线时溢出落盘为 batch-*.jsonl。
+            disk_max: 磁盘硬线（0-100）。命名消息在水位 ≥ 硬线时滞留内存不写盘，回落自动续传。
+            spill_path: 溢出根目录，每个 name 一个子目录。
+            spill_batch: 每个溢出文件的行数（攒批落盘粒度）。
+            watermarks: 水位提供者，零参返回 (memory_pct, disk_pct)；None 时用内置 /proc + statvfs 读取器。
+        """
         self.pending = dict()
         self.draining = dict()
         self.checked = set()
@@ -40,6 +61,7 @@ class Queues:
 
 
     def state(self) -> str:
+        """当前压力态：normal / soft（内存软线）/ hard（磁盘硬线）。读取失败退 normal。"""
         try:
             # 磁盘过硬线 → hard；内存过硬线 → soft；否则 normal。
             memory, disk = self._watermarks()
@@ -53,7 +75,8 @@ class Queues:
 
 
 
-    async def gate(self, name: str | None, message) -> str:
+    async def gate(self, name: str | None, message: T) -> str:
+        """写侧压力门：命名消息按水位分流 pass（内存路径）/ spill（压力缓冲）；未命名直接 pass。"""
         try:
             # 写侧统一入口：'spill' 压力缓冲（硬线滞留内存不写盘/软线溢出落盘）/ 'pass' 内存路径。
             memory, disk = self._watermarks()
@@ -82,14 +105,15 @@ class Queues:
 
 
 
-    def _spill_directory(self, name: str):
+    def _spill_directory(self, name: str) -> pathlib.Path:
         return pathlib.Path(self.pressure_spill_path).expanduser() / str(name)
 
 
 
 
 
-    async def drain(self, name: str, target, limit: int | None = None) -> int:
+    async def drain(self, name: str, target: list, limit: int | None = None) -> int:
+        """有界回灌：盘上旧 batch 文件在前 FIFO，pending 就地落成最新文件在后；返回回灌条数。"""
         try:
             # 有界回灌：盘上旧 batch 文件在前 FIFO，pending 就地落成最新文件在后，顺序自然正确。
             limit = int(self.pressure_spill_batch) if limit is None else int(limit)
@@ -121,6 +145,7 @@ class Queues:
 
 
     async def discard(self, name: str) -> int:
+        """清盘指定 name 并返回丢弃条数（pending + 盘上 batch 对账）。"""
         try:
             # 清盘并整盘对账：丢弃条数 = pending 行数 + 盘上 batch 行数。
             dropped = len(self.pending.pop(name, list()))
@@ -139,7 +164,8 @@ class Queues:
 
 
 
-    async def publish(self, message, name: str | None = None):
+    async def publish(self, message: T, name: str | None = None) -> None:
+        """入队。未命名走内存快路径（零依赖）；容量满时挂起等待消费腾位（零丢失背压）。"""
         try:
             # 未命名消息直走内存路径（零依赖快路径）；命名消息过压力门。
             action = "pass" if name is None else await self.gate(name, message)
@@ -171,7 +197,8 @@ class Queues:
 
 
 
-    async def consume(self, name: str | None = None):
+    async def consume(self, name: str | None = None) -> T:
+        """出队。缓冲空时挂起等待直递；命名消息自动先回灌盘上溢出再取内存。"""
         try:
             if len(self.db) > 0:
                 message = self.db_popleft()
@@ -198,7 +225,7 @@ class Queues:
 
 
 
-    async def main(self):
+    async def main(self) -> None:
         try:
             pass
         except BaseException as error: await self.__log_error("main", error)
@@ -207,7 +234,7 @@ class Queues:
 
 
 
-    async def __log_error(self, method: str, error: BaseException):
+    async def __log_error(self, method: str, error: BaseException) -> None:
         try:
             import logging
             frames = traceback.extract_tb(error.__traceback__)

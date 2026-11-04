@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 — 2026-11-04
+
+- Editor support: `Queues` is now `Generic[T]` — `publish(message: T)` / `consume() -> T`; every public method carries full parameter/return annotations and Chinese docstrings with `Args` sections, so signature help and hover docs behave like `asyncio.Queue`.
+- Ships a PEP 561 `py.typed` marker so type checkers trust the inline annotations.
+
 ## 0.1.1 — 2026-11-04
 
 - Fixed a lost-wakeup deadlock in `publish`: after resuming from the full-capacity wait, a producer appended to the buffer without checking registered consumers — a lone producer finishing after a resume could leave a suspended consumer waiting forever (reproducible at maxsize=1) and let later handoffs overtake messages already in the buffer. Publish now hands off directly to a registered waiter after acquiring space and chains the freed slot to the next space-waiting producer. FIFO and liveness verified with a strict two-task pipeline regression test.

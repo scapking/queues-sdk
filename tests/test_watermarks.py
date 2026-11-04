@@ -8,7 +8,7 @@ from queues_sdk.watermarks import default_watermarks
 
 
 def test_version_exported():
-    assert queues_sdk.__version__ == "0.1.1"
+    assert queues_sdk.__version__ == "0.1.2"
 
 
 
