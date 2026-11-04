@@ -60,6 +60,18 @@ async def test_consume_cancel_cleanup(q: Queues):
     assert (await q.consume())["i"] == 1
 
 
+async def test_backpressure_pipeline_fifo():
+    # 死锁回归：生产者腾位后若不看 waiter 直接落 db，最后一条消息永久卡死消费者。
+    q = Queues(maxsize=1, watermarks=lambda: (int(0), int(0)))
+    received = []
+    async def producer():
+        for i in range(200): await q.publish({"i": i})
+    async def consumer():
+        for _ in range(200): received.append(await q.consume())
+    await asyncio.gather(producer(), consumer())
+    assert [item["i"] for item in received] == list(range(200))
+
+
 
 
 

@@ -58,12 +58,14 @@ Watermarks are injected: pass `watermarks=lambda: (memory_pct, disk_pct)`; the d
 
 Measured on CPython 3.14 free-threaded, Linux, single process:
 
-| Path | Throughput |
-|---|---|
-| publish (unnamed, normal) | ~820k ops/s |
-| publish+consume pair (end-to-end TPS) | ~72k pairs/s |
-| named spill (soft line) | ~140k ops/s |
-| drain refill | ~356k ops/s |
+| Mode | plain asyncio | uvloop |
+|---|---|---|
+| pipelined producer+consumer, buffered (maxsize>=1024) | ~950k-970k pairs/s | ~950k-970k pairs/s |
+| pipelined, tight backpressure (maxsize=8) | ~480k pairs/s | ~600k pairs/s |
+| strict two-task ping-pong (maxsize=1) | ~165k pairs/s | ~233k pairs/s |
+| forced per-message-yield ping-pong benchmark | ~135k pairs/s | ~204k pairs/s |
+
+The last row is the worst case: every message forces two full event-loop task switches. For reference, a bare `asyncio.Future` handoff with no queue mechanism at all measures ~151k / ~241k pairs/s there — the queue's own overhead is ~11-16%; the rest is the event loop's task-switch cost. Buffer operations (`deque` append/popleft) run at ~11M ops/s.
 
 Spill writes are batched (1024 lines per file): expect one ~1-4 ms disk pause per batch under the soft line.
 

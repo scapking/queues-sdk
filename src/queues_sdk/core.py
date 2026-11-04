@@ -155,12 +155,17 @@ class Queues:
                 except asyncio.CancelledError:
                     if producer in self.space_waiters: self.space_waiters.remove(producer)
                     raise
+            # 腾位后发现已有等待者：直递不落 db（保 FIFO 与唤醒链），并把让出的空位链式传给下一个等位生产者。
+            if self.waiters and not self.waiters[0].done():
+                self.waiters_popleft().set_result(message)
+                if self.space_waiters and self.db.maxlen is not None and len(self.db) < self.db.maxlen: self.space_waiters_popleft().set_result(None)
+                return None
             self.db_append(message)
 
         except BaseException as error:
             # 取消必须上抛：吸收会让 producer 误以为消息已入队（丢失语义）。
             if isinstance(error, asyncio.CancelledError): raise
-            await self.__log_error("publish", error); return None; return None
+            await self.__log_error("publish", error); return None
 
 
 
@@ -187,7 +192,7 @@ class Queues:
         except BaseException as error:
             # 取消必须上抛：吸收会让消费循环把 None 当消息、teardown 永久等待。
             if isinstance(error, asyncio.CancelledError): raise
-            await self.__log_error("consume", error); return None; return None
+            await self.__log_error("consume", error); return None
 
 
 
