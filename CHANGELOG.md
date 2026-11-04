@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 — 2026-11-05
+
+- Defaults retuned: `maxsize` 1024*512 → 1024*1024, `memory_max`/`disk_max` 99 → 95. `spill_path`, `spill_batch` (1024) and `watermarks` (built-in `/proc` reader) unchanged — bare `Queues()`/`Queue()` now runs the tuned engine profile.
+
 ## 0.2.1 — 2026-11-04
 
 - `Queue` alias for `Queues` (asyncio.Queue-style naming): `from queues import Queue` — same class, same six configurable parameters. `Queues` stays valid.

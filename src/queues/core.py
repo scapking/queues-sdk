@@ -21,7 +21,7 @@ class Queues(Generic[T]):
         message = await q.consume(name="audit")   # 自动先回灌盘上溢出
     """
 
-    def __init__(self, maxsize: int = 1024*512, memory_max: int = 99, disk_max: int = 99, spill_path: str = "~/.local/queues/spill/", spill_batch: int = 1024, watermarks: Callable[[], tuple[int, int]] | None = None):
+    def __init__(self, maxsize: int = 1024*1024, memory_max: int = 95, disk_max: int = 95, spill_path: str = "~/.local/queues/spill/", spill_batch: int = 1024, watermarks: Callable[[], tuple[int, int]] | None = None):
         """构造即全部配置，永不读外部状态文件。
 
         Args:

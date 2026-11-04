@@ -4,7 +4,7 @@ One class does the work::
 
     from queues import Queues
 
-    q = Queues()                       # maxsize=1024*512, thresholds built-in
+    q = Queues()                       # maxsize=1024*1024, thresholds built-in
     await q.publish(message)           # unnamed: memory path, never dropped
     await q.publish(message, name="audit")   # named: pressure-gated spill
     message = await q.consume()              # backpressure-aware receive

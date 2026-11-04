@@ -3,7 +3,7 @@
 ## `Queues`
 
 ```python
-Queues(maxsize=1024*512, memory_max=99, disk_max=99, spill_path="~/.local/queues/spill/", spill_batch=1024, watermarks=None) -> Queues
+Queues(maxsize=1024*1024, memory_max=95, disk_max=95, spill_path="~/.local/queues/spill/", spill_batch=1024, watermarks=None) -> Queues
 ```
 
 ## `async publish(message, name=None) -> None`

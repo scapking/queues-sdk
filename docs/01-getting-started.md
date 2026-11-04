@@ -23,9 +23,9 @@ Constructor arguments (all optional, thresholds are **built into the instance**,
 
 | Argument | Default | Meaning |
 |---|---|---|
-| `maxsize` | `1024*512` | in-memory buffer capacity |
-| `memory_max` | `99` | memory soft line, 0-100 |
-| `disk_max` | `99` | disk hard line, 0-100 |
+| `maxsize` | `1024*1024` | in-memory buffer capacity |
+| `memory_max` | `95` | memory soft line, 0-100 |
+| `disk_max` | `95` | disk hard line, 0-100 |
 | `spill_path` | `~/.local/queues/spill/` | spill root directory |
 | `spill_batch` | `1024` | lines per spilled batch file |
 | `watermarks` | `None` | provider returning `(memory_pct, disk_pct)` |
